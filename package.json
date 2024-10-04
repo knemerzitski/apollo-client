@@ -1,5 +1,5 @@
 {
-  "name": "@apollo/client",
+  "name": "@knemerzitski/apollo-client",
   "version": "3.10.3",
   "description": "A fully-featured caching GraphQL client.",
   "private": true,
@@ -23,10 +23,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/apollographql/apollo-client.git"
+    "url": "git+https://github.com/knemerzitski/apollo-client.git"
   },
   "bugs": {
-    "url": "https://github.com/apollographql/apollo-client/issues"
+    "url": "https://github.com/knemerzitski/apollo-client/issues"
   },
   "homepage": "https://www.apollographql.com/docs/react/",
   "scripts": {
