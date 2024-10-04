@@ -157,6 +157,13 @@ export interface InMemoryCacheConfig extends ApolloReducerConfig {
    */
   canonizeResults?: boolean;
   fragments?: FragmentRegistryAPI;
+  /**
+   * By default explicit writes (e.g. writeFragment) are retained when using garbage collection.
+   *
+   * Use this option to not retain explicit writes.
+   * @default false
+   */
+  gcExplicitWrites?: boolean;
 }
 
 export interface MergeInfo {

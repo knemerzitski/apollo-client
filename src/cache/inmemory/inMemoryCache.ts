@@ -65,6 +65,10 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
 
   public readonly makeVar = makeVar;
 
+  get gcExplicitWrites() {
+    return this.config.gcExplicitWrites ?? false;
+  }
+
   constructor(config: InMemoryCacheConfig = {}) {
     super();
     this.config = normalizeConfig(config);

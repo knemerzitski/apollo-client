@@ -4024,4 +4024,38 @@ describe("writing to the store", () => {
       }
     `);
   });
+
+  test("garbage collects writeFragment when option gcExplicitWrites=true ", () => {
+    const postFragment = gql`
+      fragment PostFragment on Post {
+        id
+        title
+      }
+    `;
+
+    const cache = new InMemoryCache({
+      gcExplicitWrites: true,
+    });
+
+    cache.writeFragment({
+      fragment: postFragment,
+      data: {
+        __typename: "Post",
+        id: "1",
+        title: "Hello",
+      },
+    });
+
+    expect(cache.extract()["Post:1"]).toMatchInlineSnapshot(`
+      Object {
+        "__typename": "Post",
+        "id": "1",
+        "title": "Hello",
+      }
+    `);
+
+    cache.gc();
+
+    expect(cache.extract()["Post:1"]).toBeUndefined();
+  });
 });

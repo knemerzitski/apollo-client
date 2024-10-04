@@ -232,7 +232,10 @@ export class StoreWriter {
     // logic includes root IDs like ROOT_QUERY and ROOT_MUTATION, their
     // retainment counts are effectively ignored because cache.gc() always
     // includes them in its root ID set.
-    store.retain(ref.__ref);
+    const retainExplicitWrites = !this.cache.gcExplicitWrites;
+    if (retainExplicitWrites) {
+      store.retain(ref.__ref);
+    }
 
     return ref;
   }
