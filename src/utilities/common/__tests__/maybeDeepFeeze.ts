@@ -1,4 +1,4 @@
-import { maybeDeepFreeze } from "../maybeDeepFreeze";
+import { maybeDeepFreeze, maybeExcludeFreeze } from "../maybeDeepFreeze";
 
 describe("maybeDeepFreeze", () => {
   it("should deep freeze", () => {
@@ -37,5 +37,20 @@ describe("maybeDeepFreeze", () => {
     expect(Object.isFrozen(result.buffer)).toBe(false);
     expect(Object.isFrozen(result.buffer.doNotFreeze)).toBe(false);
     expect(result.buffer.doNotFreeze).toEqual({ please: "thanks" });
+  });
+
+  it("should avoid freezing excluded prototype", () => {
+    class NoFreeze {
+      value = "mutable";
+    }
+    maybeExcludeFreeze(NoFreeze.prototype);
+
+    const result = maybeDeepFreeze(new NoFreeze());
+
+    expect(Object.isFrozen(result)).toBe(false);
+
+    expect(() => {
+      result.value = "changed";
+    }).not.toThrow();
   });
 });

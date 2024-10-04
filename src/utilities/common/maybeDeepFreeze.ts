@@ -13,7 +13,7 @@ function deepFreeze(value: any) {
 }
 
 function shallowFreeze<T extends object>(obj: T): T | null {
-  if (__DEV__ && !Object.isFrozen(obj)) {
+  if (__DEV__ && !Object.isFrozen(obj) && !isExcludeFreeze(obj)) {
     try {
       Object.freeze(obj);
     } catch (e) {
@@ -30,6 +30,21 @@ function shallowFreeze<T extends object>(obj: T): T | null {
 export function maybeDeepFreeze<T>(obj: T): T {
   if (__DEV__) {
     deepFreeze(obj);
+  }
+  return obj;
+}
+
+const EXCLUDE_FREEZE: unique symbol = Symbol("ExcludeFreeze");
+
+function isExcludeFreeze(obj: object): boolean {
+  //@ts-expect-error Reading Symbol on an object is valid
+  return !!obj[EXCLUDE_FREEZE];
+}
+
+export function maybeExcludeFreeze<T extends object>(obj: T): T {
+  if (__DEV__) {
+    //@ts-expect-error Setting Symbol on an object is valid
+    obj[EXCLUDE_FREEZE] = true;
   }
   return obj;
 }
