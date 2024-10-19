@@ -101,6 +101,11 @@ export interface ApolloClientOptions<TCacheShape> {
   defaultOptions?: DefaultOptions;
   defaultContext?: Partial<DefaultContext>;
   /**
+   * Shallow copy `context` from `defaultOptions` when using `watchQuery`, `query` and `mutate` functions.
+   * @default false
+   */
+  mergeContext?: boolean;
+  /**
    * If `true`, Apollo Client will assume results read from the cache are never mutated by application code, which enables substantial performance optimizations.
    *
    * @defaultValue `false`
@@ -147,6 +152,7 @@ export class ApolloClient<TCacheShape> implements DataProxy {
   public version: string;
   public queryDeduplication: boolean;
   public defaultOptions: DefaultOptions;
+  public mergeContext: boolean;
   public readonly typeDefs: ApolloClientOptions<TCacheShape>["typeDefs"];
 
   private queryManager: QueryManager<TCacheShape>;
@@ -207,6 +213,7 @@ export class ApolloClient<TCacheShape> implements DataProxy {
       queryDeduplication = true,
       defaultOptions,
       defaultContext,
+      mergeContext,
       assumeImmutableResults = cache.assumeImmutableResults,
       resolvers,
       typeDefs,
@@ -227,6 +234,7 @@ export class ApolloClient<TCacheShape> implements DataProxy {
     this.disableNetworkFetches = ssrMode || ssrForceFetchDelay > 0;
     this.queryDeduplication = queryDeduplication;
     this.defaultOptions = defaultOptions || Object.create(null);
+    this.mergeContext = mergeContext ?? false;
     this.typeDefs = typeDefs;
 
     if (ssrForceFetchDelay) {
@@ -381,7 +389,9 @@ export class ApolloClient<TCacheShape> implements DataProxy {
     TVariables extends OperationVariables = OperationVariables,
   >(options: WatchQueryOptions<TVariables, T>): ObservableQuery<T, TVariables> {
     if (this.defaultOptions.watchQuery) {
-      options = mergeOptions(this.defaultOptions.watchQuery, options);
+      options = mergeOptions(this.defaultOptions.watchQuery, options, {
+        mergeContext: this.mergeContext,
+      });
     }
 
     // XXX Overwriting options is probably not the best way to do this long term...
@@ -410,7 +420,9 @@ export class ApolloClient<TCacheShape> implements DataProxy {
     TVariables extends OperationVariables = OperationVariables,
   >(options: QueryOptions<TVariables, T>): Promise<ApolloQueryResult<T>> {
     if (this.defaultOptions.query) {
-      options = mergeOptions(this.defaultOptions.query, options);
+      options = mergeOptions(this.defaultOptions.query, options, {
+        mergeContext: this.mergeContext
+      });
     }
 
     invariant(
@@ -445,7 +457,9 @@ export class ApolloClient<TCacheShape> implements DataProxy {
     options: MutationOptions<TData, TVariables, TContext>
   ): Promise<FetchResult<TData>> {
     if (this.defaultOptions.mutate) {
-      options = mergeOptions(this.defaultOptions.mutate, options);
+      options = mergeOptions(this.defaultOptions.mutate, options, {
+        mergeContext: this.mergeContext
+      });
     }
     return this.queryManager.mutate<TData, TVariables, TContext, TCache>(
       options

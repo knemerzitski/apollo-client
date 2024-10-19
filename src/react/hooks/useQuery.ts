@@ -423,7 +423,9 @@ class InternalState<TData, TVariables extends OperationVariables> {
       )
     );
 
-    return toMerge.reduce(mergeOptions) as WatchQueryOptions<TVariables, TData>;
+    return toMerge.reduce((prev, current) =>
+      mergeOptions(prev, current)
+    ) as WatchQueryOptions<TVariables, TData>;
   }
 
   private ssrDisabledResult = maybeDeepFreeze({

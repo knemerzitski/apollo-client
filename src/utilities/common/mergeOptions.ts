@@ -17,11 +17,25 @@ export function mergeOptions<
   TOptions extends TDefaultOptions,
 >(
   defaults: TDefaultOptions | Partial<TDefaultOptions> | undefined,
-  options: TOptions | Partial<TOptions>
+  options: TOptions | Partial<TOptions>,
+  config?: {
+    /**
+     * Shallow merge `context` property
+     * @default false
+     */
+    mergeContext?: boolean;
+  }
 ): TOptions & TDefaultOptions {
   return compact(
     defaults,
     options,
+    config?.mergeContext &&
+      options.context && {
+        context: compact({
+          ...(defaults && defaults.context),
+          ...options.context,
+        }),
+      },
     options.variables && {
       variables: compact({
         ...(defaults && defaults.variables),

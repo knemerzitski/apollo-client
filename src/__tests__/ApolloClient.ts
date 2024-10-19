@@ -2525,6 +2525,40 @@ describe("ApolloClient", () => {
         },
       });
     });
+
+    it("should always include defaultOptions.context when mergeContext=true", () => {
+      const mutation = gql`
+        {
+          field
+        }
+      `;
+
+      const client = new ApolloClient({
+        cache: new InMemoryCache(),
+        link: new ApolloLink(() => Observable.of({ data: { field: 1 } })),
+        defaultOptions: {
+          mutate: {
+            context: {
+              defaultContext: 1,
+            },
+          },
+        },
+        mergeContext: true,
+      });
+
+      return client.mutate({
+        mutation,
+        context: {
+          executeContext: 1,
+        },
+        update(_cache, _result, { context }) {
+          expect(context).toMatchObject({
+            defaultContext: 1,
+            executeContext: 1,
+          });
+        },
+      });
+    });
   });
 
   describe("clearStore", () => {
