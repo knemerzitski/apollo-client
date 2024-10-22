@@ -3,11 +3,11 @@ import { isNonNullObject } from "./objects.js";
 function deepFreeze(value: any) {
   const workSet = new Set([value]);
   workSet.forEach((obj) => {
-    if (isExcludeFreeze(obj)) {
-      return;
-    }
-
-    if (isNonNullObject(obj) && shallowFreeze(obj) === obj) {
+    if (
+      isNonNullObject(obj) &&
+      !isExcludeFreeze(obj) &&
+      shallowFreeze(obj) === obj
+    ) {
       Object.getOwnPropertyNames(obj).forEach((name) => {
         if (isNonNullObject(obj[name])) workSet.add(obj[name]);
       });
