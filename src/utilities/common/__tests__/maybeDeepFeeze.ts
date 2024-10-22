@@ -53,4 +53,22 @@ describe("maybeDeepFreeze", () => {
       result.value = "changed";
     }).not.toThrow();
   });
+
+  it("should avoid freezing nested property of excluded prototype", () => {
+    class InnerNoFreeze {
+      innerValue = "mutable";
+    }
+    class NoFreeze {
+      inner = new InnerNoFreeze();
+    }
+    maybeExcludeFreeze(NoFreeze.prototype);
+
+    const result = maybeDeepFreeze(new NoFreeze());
+
+    expect(Object.isFrozen(result)).toBe(false);
+
+    expect(() => {
+      result.inner.innerValue = "changed";
+    }).not.toThrow();
+  });
 });
