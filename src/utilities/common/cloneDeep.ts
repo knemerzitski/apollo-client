@@ -1,3 +1,5 @@
+import { isNonNullObject } from "./objects.js";
+
 const { toString } = Object.prototype;
 
 /**
@@ -8,6 +10,10 @@ export function cloneDeep<T>(value: T): T {
 }
 
 function cloneDeepHelper<T>(val: T, seen?: Map<any, any>): T {
+  if (isExcludeClone(val)) {
+    return val;
+  }
+
   switch (toString.call(val)) {
     case "[object Array]": {
       seen = seen || new Map();
@@ -36,4 +42,22 @@ function cloneDeepHelper<T>(val: T, seen?: Map<any, any>): T {
     default:
       return val;
   }
+}
+
+const EXCLUDE_CLONE: unique symbol = Symbol("ExcludeClone");
+
+function isExcludeClone(obj: unknown): boolean {
+  if (__DEV__) {
+    //@ts-expect-error Reading Symbol on an object is valid
+    return isNonNullObject(obj) && !!obj[EXCLUDE_CLONE];
+  }
+  return false;
+}
+
+export function maybeExcludeClone<T extends object>(obj: T): T {
+  if (__DEV__) {
+    //@ts-expect-error Setting Symbol on an object is valid
+    obj[EXCLUDE_CLONE] = true;
+  }
+  return obj;
 }

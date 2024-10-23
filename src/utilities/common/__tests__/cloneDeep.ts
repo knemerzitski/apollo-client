@@ -1,4 +1,4 @@
-import { cloneDeep } from "../cloneDeep";
+import { cloneDeep, maybeExcludeClone } from "../cloneDeep";
 
 describe("cloneDeep", () => {
   it("will clone primitive values", () => {
@@ -68,5 +68,27 @@ describe("cloneDeep", () => {
     expect(() => {
       cloneDeep(someObject);
     }).not.toThrow();
+  });
+
+  it("will not clone excluded prototype", () => {
+    class C {
+      value = 5;
+    }
+
+    const value = {
+      a: 1,
+      b: 2,
+      c: new C(),
+    };
+
+    maybeExcludeClone(C.prototype);
+
+    const clonedValue = cloneDeep(value);
+
+    value.c.value = 10;
+    expect(clonedValue.c).toStrictEqual(value.c);
+
+    value.a = 4;
+    expect(clonedValue.a).toStrictEqual(1);
   });
 });
