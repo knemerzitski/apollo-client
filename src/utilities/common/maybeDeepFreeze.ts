@@ -41,8 +41,11 @@ export function maybeDeepFreeze<T>(obj: T): T {
 const EXCLUDE_FREEZE: unique symbol = Symbol("ExcludeFreeze");
 
 function isExcludeFreeze(obj: object): boolean {
-  //@ts-expect-error Reading Symbol on an object is valid
-  return !!obj[EXCLUDE_FREEZE];
+  if (__DEV__) {
+    //@ts-expect-error Reading Symbol on an object is valid
+    return !!obj[EXCLUDE_FREEZE];
+  }
+  return false;
 }
 
 export function maybeExcludeFreeze<T extends object>(obj: T): T {
